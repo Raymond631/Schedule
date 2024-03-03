@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta content="IE=edge" http-equiv="X-UA-Compatible">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>收集表</title>
+    <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.7.1/jquery.js"></script>
+    <style>
+        table {
+            border-collapse: collapse;
+        }
+
+        td {
+            width: 70px;
+            height: 50px;
+            text-align: center;
+            border: 1px solid black;
+            cursor: pointer;
+        }
+
+        th {
+            width: 70px;
+            height: 70px;
+            text-align: center;
+            border: 1px solid black;
+            cursor: pointer;
+        }
+
+        .container {
+            margin: 0 auto;
+            display: table;
+        }
+
+        .button {
+            display: block;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="container">
+        <span>
+            <label for="name">姓名:</label>
+            <input id="name" name="name" type="text">
+        </span>
+        <span>
+            <label for="userId">工号:</label>
+            <input id="userId" name="userId" type="text"><br><br>
+        </span>
+    </div>
+
+    <table id="interactive-table">
+        <tr>
+            <th>时间</th>
+            <th>周一</th>
+            <th>周二</th>
+            <th>周三</th>
+            <th>周四</th>
+            <th>周五</th>
+            <th>周六</th>
+            <th>周日</th>
+        </tr>
+        <tr>
+            <th>10:00-11:40</th>
+            <td onclick="toggleColor(this)">1</td>
+            <td onclick="toggleColor(this)">4</td>
+            <td onclick="toggleColor(this)">7</td>
+            <td onclick="toggleColor(this)">10</td>
+            <td onclick="toggleColor(this)">13</td>
+            <td onclick="toggleColor(this)">16</td>
+            <td onclick="toggleColor(this)">19</td>
+        </tr>
+        <tr>
+            <th>14:10-15:50</th>
+            <td onclick="toggleColor(this)">2</td>
+            <td onclick="toggleColor(this)">5</td>
+            <td onclick="toggleColor(this)">8</td>
+            <td onclick="toggleColor(this)">11</td>
+            <td onclick="toggleColor(this)">14</td>
+            <td onclick="toggleColor(this)">17</td>
+            <td onclick="toggleColor(this)">20</td>
+        </tr>
+        <tr>
+            <th>15:50-17:30</th>
+            <td onclick="toggleColor(this)">3</td>
+            <td onclick="toggleColor(this)">6</td>
+            <td onclick="toggleColor(this)">9</td>
+            <td onclick="toggleColor(this)">12</td>
+            <td onclick="toggleColor(this)">15</td>
+            <td onclick="toggleColor(this)">18</td>
+            <td onclick="toggleColor(this)">21</td>
+        </tr>
+    </table>
+    <br>
+    <button class="button" id="submitBtn" type="button">Submit</button>
+</div>
+
+
+<script>
+    $(document).ready(function () {
+        $("#submitBtn").click(() => {
+            let timeList = new Array(21);
+            $('#interactive-table td').each((index, cell) => {
+                let id = $(cell).text();
+                timeList[id - 1] = (cell.style.backgroundColor === "red") ? 1 : 0
+            });
+            let name = $("#name").val()
+            let userId = $("#userId").val()
+
+            if (name.trim() === '') {
+                window.alert("姓名不能为空")
+            } else if (userId.trim() === '') {
+                window.alert("工号不能为空")
+            } else if (isNaN(userId)) {
+                window.alert('工号必须为数字!');
+            } else {
+                let data = {
+                    name: name,
+                    userId: parseInt(userId, 10),
+                    timeList: timeList
+                };
+                console.log(data)
+                if (confirm('是否确认提交？')) {
+                    sendAjaxRequest(data)
+                }
+            }
+        })
+    });
+
+    function toggleColor(cell) {
+        if (cell.style.backgroundColor === "red") {
+            cell.style.backgroundColor = "";
+        } else {
+            cell.style.backgroundColor = "red";
+        }
+    }
+
+    function sendAjaxRequest(data) {
+        let settings = {
+            "url": "http://127.0.0.1:5000/submit",
+            "method": "POST",
+            "timeout": 0,
+            "headers": {
+                "Content-Type": "application/json"
+            },
+            "data": JSON.stringify(data),
+        };
+        $.ajax(settings).done((response) => {
+            console.log(response);
+            window.alert("提交成功")
+        });
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>收集结果</title>
+    <style>
+        table {
+            border-collapse: collapse;
+        }
+
+        td {
+            width: 100px;
+            height: 50px;
+            text-align: center;
+            border: 1px solid black;
+            cursor: pointer;
+        }
+
+        th {
+            width: 100px;
+            height: 50px;
+            text-align: center;
+            border: 1px solid black;
+            cursor: pointer;
+        }
+
+        .long {
+            width: 500px;
+        }
+
+        .container {
+            margin: 0 auto;
+            display: table;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <table>
+        <tr>
+            <th>工号</th>
+            <th>姓名</th>
+            <th class="long">0空闲，1忙碌</th>
+        </tr>
+        {% for row in data %}
+        <tr>
+            <th>{{ row.get("userId") }}</th>
+            <th>{{ row.get("name") }}</th>
+            <th class="long">{{ row.get("timeList") }}</th>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+
+</body>
+</html>
