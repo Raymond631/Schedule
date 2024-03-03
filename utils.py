@@ -41,7 +41,6 @@ def to_table(data):
 def send_email(data, msg_type):
     message = MIMEMultipart()
     message['From'] = account
-    message['To'] = receiver
     message['Subject'] = '网服排班结果'
 
     if msg_type == "table":
