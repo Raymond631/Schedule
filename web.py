@@ -1,13 +1,10 @@
 import threading
 
 from flask import Flask, request, render_template
-from flask_cors import *
 
 import Scheduler
 
 app = Flask(__name__)
-# 支持跨域
-CORS(app, resources=r'/*')
 
 # 收集数据缓存
 collected_data = []
@@ -17,6 +14,9 @@ num_students = 21
 # 每周班数：7*3
 num_classes = 21
 
+@app.route('/', methods=['get'])
+def entrypoint():
+    return render_template("index.html")
 
 @app.route('/submit', methods=['POST'])
 def submit():
