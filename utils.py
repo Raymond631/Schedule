@@ -1,14 +1,19 @@
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+import json
 
 import pandas as pd
 
+with open("config.json", encoding="utf-8") as f:
+    config = json.load(f)
+
 # 邮件设置
-account = 'raymondli631@163.com'
-receiver = ['raymondli631@qq.com', '1526960441@qq.com']
-# TODO 配置授权码
-password = 'XVWKWFDJUJMDUYPO'
+account = config["account"]
+receiver = config["receiver"]
+smtp_host = config["smtp_host"]
+password = config["password"]
+
 
 
 def to_table(data):
@@ -74,7 +79,7 @@ def send_email(msg, data, success):
     message.attach(text_message)
     message.attach(table_message)
     try:
-        s = smtplib.SMTP_SSL("smtp.163.com", 465)
+        s = smtplib.SMTP_SSL(smtp_host, 465)
         s.login(account, password)
         s.sendmail(account, receiver, message.as_string())
         s.quit()
