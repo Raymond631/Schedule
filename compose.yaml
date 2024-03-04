@@ -1,0 +1,11 @@
+services:
+  app:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:10003:8000"
+    volumes:
+      - ./config.json:/app/config.json
+    #environment:
+    #  - WORKER_SIZE=2
+    container_name: wangfu_schedule
