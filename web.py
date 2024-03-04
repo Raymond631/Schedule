@@ -1,22 +1,26 @@
 import threading
+import json
 
 from flask import Flask, request, render_template
-from flask_cors import *
 
 import Scheduler
 
 app = Flask(__name__)
-# 支持跨域
-CORS(app, resources=r'/*')
+
+with open("config.json", encoding="utf-8") as f:
+    config = json.load(f)
 
 # 收集数据缓存
 collected_data = []
 
 # 在校学生数（可调）
-num_students = 21
+num_students = config["num_students"]
 # 每周班数：7*3
-num_classes = 21
+num_classes = config["num_classes"]
 
+@app.route('/', methods=['get'])
+def entrypoint():
+    return render_template("index.html")
 
 @app.route('/submit', methods=['POST'])
 def submit():

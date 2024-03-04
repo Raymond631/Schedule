@@ -1,0 +1,8 @@
+{
+    "num_students": 21,
+    "num_classes": 21,
+    "account": "schedule_bot@xxxxxx",
+    "password": "rxxxxxxxxdB",
+    "smtp_host": "xxxxxx",
+    "receiver": ["rxxxx1@xxxx.com", "xxxxx@xxxx.com"]
+}
