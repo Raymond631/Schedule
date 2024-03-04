@@ -7,13 +7,17 @@
     <title>收集表</title>
     <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.7.1/jquery.js"></script>
     <style>
+        h1 {
+            text-align: center;
+        }
+
         table {
             border-collapse: collapse;
         }
 
         td {
             width: 70px;
-            height: 50px;
+            height: 70px;
             text-align: center;
             border: 1px solid black;
             cursor: pointer;
@@ -35,12 +39,34 @@
         .button {
             display: block;
             margin: 0 auto;
+            padding: 15px 25px;
+            font-size: 24px;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            outline: none;
+            color: #fff;
+            background-color: #4CAF50;
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 3px #999;
+        }
+
+        .button:hover {
+            background-color: #3e8e41
+        }
+
+        .button:active {
+            background-color: #3e8e41;
+            box-shadow: 0 1px #666;
+            transform: translateY(4px);
         }
     </style>
 </head>
 <body>
 
 <div class="container">
+    <h1>网服排班系统</h1>
     <div class="container">
         <span>
             <label for="name">姓名:</label>
@@ -48,10 +74,10 @@
         </span>
         <span>
             <label for="userId">工号:</label>
-            <input id="userId" name="userId" type="text"><br><br>
+            <input id="userId" name="userId" type="text"><br>
         </span>
     </div>
-
+    <p>请选择<span style="color: red">忙碌</span>的时间段：</p>
     <table id="interactive-table">
         <tr>
             <th>时间</th>

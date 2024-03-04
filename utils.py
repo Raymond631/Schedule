@@ -8,7 +8,7 @@ import pandas as pd
 account = 'raymondli631@163.com'
 receiver = ['raymondli631@qq.com', '1526960441@qq.com']
 # TODO 配置授权码
-password = ''
+password = 'XVWKWFDJUJMDUYPO'
 
 
 def to_table(data):
@@ -28,28 +28,51 @@ def to_table(data):
                 row.append('')
         table.append(row)
     print("排班结果：")
-    print(table)
+    for row in table:
+        print(row)
     return table
 
-    # # 将表格输出到CSV文件
-    # with open('output.csv', 'w', newline='', encoding='utf-8') as file:
-    #     writer = csv.writer(file)
-    #     writer.writerows(table)
-    # print("排班文件已生成：output.csv")
 
+def send_email(msg, data, success):
+    custom_css = """
+    <style>
+        table {
+            border-collapse: collapse;
+            text-align: center;
+            border: 2px;
+        }
+        td {
+            text-align: center;
+            border: 1px solid black;
+            padding: 10px;
+            font-size: 20px;
+        }
+        th {
+            text-align: center;
+            border: 1px solid black;
+            padding: 10px;
+            font-size: 20px;
+        }
+    </style>
+    """
 
-def send_email(data, msg_type):
+    # 文本消息
+    text_message = MIMEText(msg, 'html', 'utf-8')
+    # 表格消息
+    if success:
+        html_table = pd.DataFrame(data).to_html(index=False, header=False)  # index为行号，header为列名
+        full_html = custom_css + html_table
+        table_message = MIMEText(full_html, 'html')
+    else:
+        html_table = pd.DataFrame(data).to_html(index=False)
+        full_html = custom_css + html_table
+        table_message = MIMEText(full_html, 'html')
+
     message = MIMEMultipart()
     message['From'] = account
     message['Subject'] = '网服排班结果'
-
-    if msg_type == "table":
-        html_table = pd.DataFrame(data).to_html(index=False, header=False)
-        body = MIMEText(html_table, 'html', 'utf-8')
-        message.attach(body)
-    else:
-        message.attach(MIMEText(data, 'plain', 'utf-8'))
-
+    message.attach(text_message)
+    message.attach(table_message)
     try:
         s = smtplib.SMTP_SSL("smtp.163.com", 465)
         s.login(account, password)

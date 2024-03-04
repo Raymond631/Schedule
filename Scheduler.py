@@ -38,24 +38,33 @@ def process(num_students, num_classes, students_availability, name_list):
 
 
 def start(collected_data, num_students, num_classes):
+    print("收集数据如下：")
     name_list = [item["name"] for item in collected_data]
+    print(name_list)
     time_list = [item["timeList"] for item in collected_data]  # 每一行代表一个学生，0表示空闲，1表示忙碌
+    for row in time_list:
+        print(row)
     result = process(num_students, num_classes, time_list, name_list)
     if len(result) > 0:
         table = to_table(result)
-        send_email(table, "table")
+        send_email("成功找到排班方案", table, True)
     else:
-        message = "未找到有效排班方案"
-        send_email(message, "text")
+        send_email("未找到有效排班方案，请根据下面的数据手动调整（0表示空闲，1表示忙碌）：", collected_data, False)
 
     # 清空缓存，以待下次收集
     collected_data.clear()
     print("缓存已清空")
 
 # def mock(num_students):
-#     data = []
-#     for i in range(num_students):
-#         data.append([random.choice([0, 1]) for _ in range(21)])
-#     for j in data:
-#         print(j)
-#     return data
+#     collected_data = []
+#     for _ in range(num_students):
+#         collected_data.append({
+#             "name": ''.join(random.choice(string.ascii_letters) for i in range(6)),
+#             "userId": random.randint(100, 1000),
+#             "timeList": [random.choice([0, 1]) for _ in range(21)]
+#         })
+#     return collected_data
+#
+#
+# if __name__ == '__main__':
+#     start(mock(21), 21, 21)
