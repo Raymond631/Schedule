@@ -1,4 +1,4 @@
-from utils import to_table, send_email
+from utils import to_table, send_email, clear_collected_data
 
 
 class Scheduler:
@@ -38,12 +38,13 @@ def process(num_students, num_classes, students_availability, name_list):
 
 
 def start(collected_data, num_students, num_classes):
-    print("收集数据如下：")
     name_list = [item["name"] for item in collected_data]
-    print(name_list)
     time_list = [item["timeList"] for item in collected_data]  # 每一行代表一个学生，0表示空闲，1表示忙碌
+    print("收集数据如下：")
+    print(name_list)
     for row in time_list:
         print(row)
+
     result = process(num_students, num_classes, time_list, name_list)
     if len(result) > 0:
         table = to_table(result)
@@ -52,8 +53,7 @@ def start(collected_data, num_students, num_classes):
         send_email("未找到有效排班方案，请根据下面的数据手动调整（0表示空闲，1表示忙碌）：", collected_data, False)
 
     # 清空缓存，以待下次收集
-    collected_data.clear()
-    print("缓存已清空")
+    clear_collected_data()
 
 # def mock(num_students):
 #     collected_data = []

@@ -1,17 +1,15 @@
-import threading
 import json
+import threading
 
 from flask import Flask, request, render_template
 
 import Scheduler
+import utils
 
 app = Flask(__name__)
 
 with open("config.json", encoding="utf-8") as f:
     config = json.load(f)
-
-# 收集数据缓存
-collected_data = []
 
 # 在校学生数（可调）
 num_students = config["num_students"]
@@ -27,11 +25,14 @@ def entrypoint():
 @app.route('/submit', methods=['POST'])
 def submit():
     data = request.get_json()
-    print(f"Received data: {data}")
-    collected_data.append(data)
+    print(f"收到数据: {data}")
+    # 插入redis（重复提交可以覆盖）
+    length = utils.put_into_redis(data)
 
-    if len(collected_data) == num_students:
+    if length >= num_students:
         print("收集完毕")
+        # 从redis取出所有数据
+        collected_data = utils.get_from_redis()
         thread = threading.Thread(target=Scheduler.start, args=(collected_data, num_students, num_classes))
         thread.start()
     return 'OK'
@@ -39,16 +40,20 @@ def submit():
 
 @app.route('/look', methods=['get'])
 def look():
+    collected_data = utils.get_from_redis()
     # 按照'id'键对字典列表进行排序
     sorted_data = sorted(collected_data, key=lambda x: x['userId'])
     return render_template("look.html", data=sorted_data)
 
 
+# 特殊情况下，可用于删除某个提交（如name输错）
 @app.route('/delete', methods=['get'])
 def delete():
-    collected_data.clear()
-    print("缓存已手动清空")
-    return "缓存已手动清空"
+    name = request.args.get('name')
+    utils.delete_from_redis(name)
+    s = f"已删除name={name}的提交"
+    print(s)
+    return s
 
 
 @app.route('/preview', methods=['get'])

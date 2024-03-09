@@ -1,19 +1,25 @@
+import json
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-import json
 
 import pandas as pd
+import redis
 
 with open("config.json", encoding="utf-8") as f:
     config = json.load(f)
 
-# 邮件设置
+# 邮件配置
 account = config["account"]
 receiver = config["receiver"]
 smtp_host = config["smtp_host"]
 password = config["password"]
-
+# redis配置
+host = config["redis"]["host"]
+port = config["redis"]["port"]
+pwd = config["redis"]["password"]
+db = config["redis"]["db"]
+redis_db = redis.StrictRedis(host=host, port=port, password=pwd, db=db)
 
 
 def to_table(data):
@@ -86,3 +92,29 @@ def send_email(msg, data, success):
         print("邮件发送成功")
     except smtplib.SMTPException as e:
         print(e)
+
+
+# 存入redis
+def put_into_redis(data):
+    # 如果name已存在，会更新数据
+    redis_db.hset("collected_data", data.get("name"), json.dumps(data))
+    # 返回数据长度
+    return redis_db.hlen("collected_data")
+
+
+# 从redis取出
+def get_from_redis():
+    collected_data = redis_db.hgetall("collected_data")
+    decoded_data = [json.loads(value) for value in collected_data.values()]
+    return decoded_data
+
+
+# 从redis删除
+def delete_from_redis(name):
+    redis_db.hdel("collected_data", name)
+
+
+# 清空redis
+def clear_collected_data():
+    redis_db.delete("collected_data")
+    print("缓存已清空")
