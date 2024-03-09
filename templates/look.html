@@ -46,7 +46,7 @@
         <tr>
             <th>{{ row.get("userId") }}</th>
             <th>{{ row.get("name") }}</th>
-            <th class="long">{{ row.get("timeList") }}</th>
+            <th class="long"><a href="preview?name={{ row.get("name") }}&userId={{ row.get("userId") }}&data={{ row.get("timeList") }}">{{ row.get("timeList") }}</a></th>
         </tr>
         {% endfor %}
     </table>
