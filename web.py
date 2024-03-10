@@ -1,3 +1,4 @@
+import csv
 import json
 import threading
 
@@ -10,11 +11,16 @@ app = Flask(__name__)
 
 with open("config.json", encoding="utf-8") as f:
     config = json.load(f)
-
 # 在校学生数（可调）
 num_students = config["num_students"]
 # 每周班数：7*3
 num_classes = config["num_classes"]
+
+people = {}
+with open('resource/people.csv', mode='r') as file:
+    reader = csv.DictReader(file)
+    for row in reader:
+        people[row['name']] = row['level']
 
 
 @app.route('/', methods=['get'])
@@ -41,9 +47,9 @@ def submit():
 @app.route('/look', methods=['get'])
 def look():
     collected_data = utils.get_from_redis()
-    # 按照'id'键对字典列表进行排序
-    sorted_data = sorted(collected_data, key=lambda x: x['userId'])
-    return render_template("look.html", data=sorted_data)
+    # 未提交人员名单
+    missing_names = [name for name in people.keys() if name not in set(item['name'] for item in collected_data)]
+    return render_template("look.html", collected_data=collected_data, missing_names=missing_names)
 
 
 # 特殊情况下，可用于删除某个提交（如name输错）

@@ -1,4 +1,12 @@
+import csv
+
 from utils import to_table, send_email, clear_collected_data
+
+people = {}
+with open('resource/people.csv', mode='r') as file:
+    reader = csv.DictReader(file)
+    for row in reader:
+        people[row['name']] = row['level']
 
 
 class Scheduler:
@@ -38,6 +46,9 @@ def process(num_students, num_classes, students_availability, name_list):
 
 
 def start(collected_data, num_students, num_classes):
+    # 将新队员排到前面（优先排班）
+    collected_data.sort(key=lambda x: people[x['name']])
+
     name_list = [item["name"] for item in collected_data]
     time_list = [item["timeList"] for item in collected_data]  # 每一行代表一个学生，0表示空闲，1表示忙碌
     print("收集数据如下：")
@@ -57,9 +68,10 @@ def start(collected_data, num_students, num_classes):
 
 # def mock(num_students):
 #     collected_data = []
-#     for _ in range(num_students):
+#     b = random.randint(0, num_students - 1)  # 偏移量
+#     for i in range(num_students):
 #         collected_data.append({
-#             "name": ''.join(random.choice(string.ascii_letters) for i in range(6)),
+#             "name": list(people.keys())[(i + b) % len(people.keys())],
 #             "userId": random.randint(100, 1000),
 #             "timeList": [random.choice([0, 1]) for _ in range(21)]
 #         })
@@ -67,4 +79,4 @@ def start(collected_data, num_students, num_classes):
 #
 #
 # if __name__ == '__main__':
-#     start(mock(21), 21, 21)
+#     start(mock(26), 26, 21)

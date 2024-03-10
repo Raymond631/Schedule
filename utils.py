@@ -52,7 +52,7 @@ def collected_to_csv(data):
     times = ["(1)", "(2)", "(3)"]
 
     # 将数据写入CSV文件
-    with open('out/收集结果.csv', 'w', newline='', encoding='utf-8') as csvfile:
+    with open('resource/收集结果.csv', 'w', newline='', encoding='utf-8') as csvfile:
         fieldnames = ['姓名', '工号'] + [f'{day}{time}' for day in days for time in times]
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
 
@@ -105,7 +105,7 @@ def send_email(msg, collected_data, result=None):
         table_message = MIMEText(full_html, 'html')
         message.attach(table_message)
     # 收集到的原始数据（附件）
-    filename = "out/收集结果.csv"
+    filename = "resource/收集结果.csv"
     filepart = MIMEApplication(open(filename, 'rb').read())
     filepart.add_header('Content-Disposition', 'attachment', filename='%s' % filename)
     message.attach(filepart)
