@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <title>收集结果</title>
     <style>
+        h1 {
+            text-align: center;
+        }
+
         table {
             border-collapse: collapse;
         }
@@ -29,14 +33,18 @@
         }
 
         .container {
-            width: 40%;
             margin: 0 auto;
             display: table;
+        }
+
+        .miss {
+            width: 700px;
         }
     </style>
 </head>
 <body>
 <div class="container">
+    <h1>收集结果</h1>
     <table>
         <tr>
             <th>工号</th>
@@ -54,11 +62,11 @@
         {% endfor %}
     </table>
     <p>未提交：</p>
-    <dev>
+    <div class="miss">
         {% for name in missing_names %}
             <span>{{ name }},&nbsp;&nbsp;</span>
         {% endfor %}
-    </dev>
+    </div>
 
 </div>
 
