@@ -29,6 +29,7 @@
         }
 
         .container {
+            width: 40%;
             margin: 0 auto;
             display: table;
         }
@@ -42,14 +43,23 @@
             <th>姓名</th>
             <th class="long">0空闲，1忙碌</th>
         </tr>
-        {% for row in data %}
-        <tr>
-            <th>{{ row.get("userId") }}</th>
-            <th>{{ row.get("name") }}</th>
-            <th class="long"><a href="preview?name={{ row.get("name") }}&userId={{ row.get("userId") }}&data={{ row.get("timeList") }}">{{ row.get("timeList") }}</a></th>
-        </tr>
+        {% for row in collected_data %}
+            <tr>
+                <th>{{ row.get("userId") }}</th>
+                <th>{{ row.get("name") }}</th>
+                <th class="long"><a
+                        href="preview?name={{ row.get("name") }}&userId={{ row.get("userId") }}&data={{ row.get("timeList") }}">{{ row.get("timeList") }}</a>
+                </th>
+            </tr>
         {% endfor %}
     </table>
+    <p>未提交：</p>
+    <dev>
+        {% for name in missing_names %}
+            <span>{{ name }},&nbsp;&nbsp;</span>
+        {% endfor %}
+    </dev>
+
 </div>
 
 </body>

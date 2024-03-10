@@ -1,5 +1,7 @@
+import csv
 import json
 import smtplib
+from email.mime.application import MIMEApplication
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
@@ -44,7 +46,28 @@ def to_table(data):
     return table
 
 
-def send_email(msg, data, success):
+def collected_to_csv(data):
+    # 定义星期和时间的列表
+    days = ["星期一", "星期二", "星期三", "星期四", "星期五", "星期六", "星期日"]
+    times = ["(1)", "(2)", "(3)"]
+
+    # 将数据写入CSV文件
+    with open('resource/收集结果.csv', 'w', newline='', encoding='utf-8') as csvfile:
+        fieldnames = ['姓名', '工号'] + [f'{day}{time}' for day in days for time in times]
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+
+        writer.writeheader()
+        for row in data:
+            timeList = ['' if value == 1 else '空闲' if value == 0 else value for value in row.get("timeList")]
+            new_row = {
+                '姓名': row['name'],
+                '工号': row['userId'],
+                **{f'{days[i]}{times[j]}': timeList[i * 3 + j] for i in range(7) for j in range(3)}
+            }
+            writer.writerow(new_row)
+
+
+def send_email(msg, collected_data, result=None):
     custom_css = """
     <style>
         table {
@@ -66,24 +89,27 @@ def send_email(msg, data, success):
         }
     </style>
     """
-
-    # 文本消息
-    text_message = MIMEText(msg, 'html', 'utf-8')
-    # 表格消息
-    if success:
-        html_table = pd.DataFrame(data).to_html(index=False, header=False)  # index为行号，header为列名
-        full_html = custom_css + html_table
-        table_message = MIMEText(full_html, 'html')
-    else:
-        html_table = pd.DataFrame(data).to_html(index=False)
-        full_html = custom_css + html_table
-        table_message = MIMEText(full_html, 'html')
+    collected_to_csv(collected_data)
 
     message = MIMEMultipart()
     message['From'] = account
     message['Subject'] = '网服排班结果'
+
+    # 文本消息
+    text_message = MIMEText(msg, 'html', 'utf-8')
     message.attach(text_message)
-    message.attach(table_message)
+    # 排班结果
+    if result:
+        html_table = pd.DataFrame(result).to_html(index=False, header=False)  # index为行号，header为列名
+        full_html = custom_css + html_table
+        table_message = MIMEText(full_html, 'html')
+        message.attach(table_message)
+    # 收集到的原始数据（附件）
+    filename = "resource/收集结果.csv"
+    filepart = MIMEApplication(open(filename, 'rb').read())
+    filepart.add_header('Content-Disposition', 'attachment', filename='%s' % filename)
+    message.attach(filepart)
+
     try:
         s = smtplib.SMTP_SSL(smtp_host, 465)
         s.login(account, password)
