@@ -6,6 +6,16 @@ services:
       - "127.0.0.1:10003:8000"
     volumes:
       - ./config.json:/app/config.json
-    #environment:
-    #  - WORKER_SIZE=2
+    # environment:
+    #   - WORKER_SIZE=1
     container_name: wangfu_schedule
+    depends_on:
+      - redis
+  redis:
+    image: redis:6-alpine
+    restart: unless-stopped
+    volumes:
+      - ./redis:/data
+    container_name: wangfu_schedule_redis
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
