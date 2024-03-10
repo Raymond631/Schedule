@@ -48,9 +48,9 @@ def start(collected_data, num_students, num_classes):
     result = process(num_students, num_classes, time_list, name_list)
     if len(result) > 0:
         table = to_table(result)
-        send_email("成功找到排班方案", table, True)
+        send_email("成功找到排班方案", collected_data=collected_data, result=table)
     else:
-        send_email("未找到有效排班方案，请根据下面的数据手动调整（0表示空闲，1表示忙碌）：", collected_data, False)
+        send_email("未找到有效排班方案，请根据下面的数据手动调整（0表示空闲，1表示忙碌）：", collected_data=collected_data)
 
     # 清空缓存，以待下次收集
     clear_collected_data()
