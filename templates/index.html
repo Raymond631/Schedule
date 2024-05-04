@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh">
+
 <head>
     <meta charset="UTF-8">
     <meta content="IE=edge" http-equiv="X-UA-Compatible">
@@ -63,123 +64,147 @@
         }
     </style>
 </head>
+
 <body>
 
-<div class="container">
-    <h1>网服排班系统</h1>
     <div class="container">
-        <span>
-            <label for="name">姓名:</label>
-            <input id="name" name="name" type="text">
-        </span><br><br>
-        <span>
-            <label for="userId">工号:</label>
-            <input id="userId" name="userId" type="text"><br>
-        </span>
+        <h1>网服排班系统</h1>
+        <div class="container">
+            <span>
+                <label for="name">姓名:</label>
+                <input id="name" name="name" type="text">
+            </span><br><br>
+            <span>
+                <label for="userId">工号:</label>
+                <input id="userId" name="userId" type="text"><br>
+            </span>
+        </div>
+        <p>请选择<span style="color: red">忙碌</span>的时间段：</p>
+        <table id="interactive-table">
+            <tr>
+                <th>时间</th>
+                <th>周一</th>
+                <th>周二</th>
+                <th>周三</th>
+                <th>周四</th>
+                <th>周五</th>
+                <th>周六</th>
+                <th>周日</th>
+            </tr>
+            <tr>
+                <th>10:00-11:40</th>
+                <td onclick="toggleColor(this)">1</td>
+                <td onclick="toggleColor(this)">4</td>
+                <td onclick="toggleColor(this)">7</td>
+                <td onclick="toggleColor(this)">10</td>
+                <td onclick="toggleColor(this)">13</td>
+                <td onclick="toggleColor(this)">16</td>
+                <td onclick="toggleColor(this)">19</td>
+            </tr>
+            <tr>
+                <th>14:10-15:50</th>
+                <td onclick="toggleColor(this)">2</td>
+                <td onclick="toggleColor(this)">5</td>
+                <td onclick="toggleColor(this)">8</td>
+                <td onclick="toggleColor(this)">11</td>
+                <td onclick="toggleColor(this)">14</td>
+                <td onclick="toggleColor(this)">17</td>
+                <td onclick="toggleColor(this)">20</td>
+            </tr>
+            <tr>
+                <th>15:50-17:30</th>
+                <td onclick="toggleColor(this)">3</td>
+                <td onclick="toggleColor(this)">6</td>
+                <td onclick="toggleColor(this)">9</td>
+                <td onclick="toggleColor(this)">12</td>
+                <td onclick="toggleColor(this)">15</td>
+                <td onclick="toggleColor(this)">18</td>
+                <td onclick="toggleColor(this)">21</td>
+            </tr>
+        </table>
+        <br>
+        <button class="button" id="submitBtn" type="button">Submit</button>
+        <a href="look">查看收集结果</a>
     </div>
-    <p>请选择<span style="color: red">忙碌</span>的时间段：</p>
-    <table id="interactive-table">
-        <tr>
-            <th>时间</th>
-            <th>周一</th>
-            <th>周二</th>
-            <th>周三</th>
-            <th>周四</th>
-            <th>周五</th>
-            <th>周六</th>
-            <th>周日</th>
-        </tr>
-        <tr>
-            <th>10:00-11:40</th>
-            <td onclick="toggleColor(this)">1</td>
-            <td onclick="toggleColor(this)">4</td>
-            <td onclick="toggleColor(this)">7</td>
-            <td onclick="toggleColor(this)">10</td>
-            <td onclick="toggleColor(this)">13</td>
-            <td onclick="toggleColor(this)">16</td>
-            <td onclick="toggleColor(this)">19</td>
-        </tr>
-        <tr>
-            <th>14:10-15:50</th>
-            <td onclick="toggleColor(this)">2</td>
-            <td onclick="toggleColor(this)">5</td>
-            <td onclick="toggleColor(this)">8</td>
-            <td onclick="toggleColor(this)">11</td>
-            <td onclick="toggleColor(this)">14</td>
-            <td onclick="toggleColor(this)">17</td>
-            <td onclick="toggleColor(this)">20</td>
-        </tr>
-        <tr>
-            <th>15:50-17:30</th>
-            <td onclick="toggleColor(this)">3</td>
-            <td onclick="toggleColor(this)">6</td>
-            <td onclick="toggleColor(this)">9</td>
-            <td onclick="toggleColor(this)">12</td>
-            <td onclick="toggleColor(this)">15</td>
-            <td onclick="toggleColor(this)">18</td>
-            <td onclick="toggleColor(this)">21</td>
-        </tr>
-    </table>
-    <br>
-    <button class="button" id="submitBtn" type="button">Submit</button>
-    <a href="look">查看收集结果</a>
-</div>
 
 
-<script>
-    $(document).ready(function () {
-        $("#submitBtn").click(() => {
-            let timeList = new Array(21);
-            $('#interactive-table td').each((index, cell) => {
-                let id = $(cell).text();
-                timeList[id - 1] = (cell.style.backgroundColor === "red") ? 1 : 0
-            });
-            let name = $("#name").val()
-            let userId = $("#userId").val()
-
-            if (name.trim() === '') {
-                window.alert("姓名不能为空")
-            } else if (userId.trim() === '') {
-                window.alert("工号不能为空")
-            } else if (isNaN(userId)) {
-                window.alert('工号必须为数字!');
-            } else {
-                let data = {
-                    name: name,
-                    userId: parseInt(userId, 10),
-                    timeList: timeList
-                };
-                console.log(data)
-                if (confirm('是否确认提交？')) {
-                    sendAjaxRequest(data)
-                }
+    <script>
+        $(document).ready(function () {
+            // 页面加载时读取数据并展示
+            const userData = localStorage.getItem('userData');
+            if (userData) {
+                const data = JSON.parse(userData);
+                $("#name").val(data.name);
+                $("#userId").val(data.userId);
+                data.timeList.forEach((isBusy, index) => {
+                    if (isBusy) {
+                        // 填充表格数据
+                        $('#interactive-table td').each((index, cell) => {
+                            const id = parseInt($(cell).text(), 10);
+                            if (data.timeList[id - 1] === 1) {
+                                cell.style.backgroundColor = "red";
+                            }
+                        });
+                    }
+                });
             }
-        })
-    });
+            $("#submitBtn").click(() => {
+                let timeList = new Array(21);
+                $('#interactive-table td').each((index, cell) => {
+                    let id = $(cell).text();
+                    timeList[id - 1] = (cell.style.backgroundColor === "red") ? 1 : 0
+                });
+                let name = $("#name").val()
+                let userId = $("#userId").val()
 
-    function toggleColor(cell) {
-        if (cell.style.backgroundColor === "red") {
-            cell.style.backgroundColor = "";
-        } else {
-            cell.style.backgroundColor = "red";
-        }
-    }
-
-    function sendAjaxRequest(data) {
-        let settings = {
-            "url": "/submit",
-            "method": "POST",
-            "timeout": 0,
-            "headers": {
-                "Content-Type": "application/json"
-            },
-            "data": JSON.stringify(data),
-        };
-        $.ajax(settings).done((response) => {
-            console.log(response);
-            window.alert(response)
+                if (name.trim() === '') {
+                    window.alert("姓名不能为空")
+                } else if (userId.trim() === '') {
+                    window.alert("工号不能为空")
+                } else if (isNaN(userId)) {
+                    window.alert('工号必须为数字!');
+                } else {
+                    let data = {
+                        name: name,
+                        userId: parseInt(userId, 10),
+                        timeList: timeList
+                    };
+                    console.log(data)
+                    if (confirm('是否确认提交？')) {
+                        sendAjaxRequest(data)
+                    }
+                }
+            })
         });
-    }
-</script>
+
+        function toggleColor(cell) {
+            if (cell.style.backgroundColor === "red") {
+                cell.style.backgroundColor = "";
+            } else {
+                cell.style.backgroundColor = "red";
+            }
+        }
+
+        function sendAjaxRequest(data) {
+            let settings = {
+                "url": "/submit",
+                "method": "POST",
+                "timeout": 0,
+                "headers": {
+                    "Content-Type": "application/json"
+                },
+                "data": JSON.stringify(data),
+            };
+
+            // 保存数据到 localStorage
+            localStorage.setItem('userData', JSON.stringify(data));
+
+            $.ajax(settings).done((response) => {
+                console.log(response);
+                window.alert(response)
+            });
+        }
+    </script>
 </body>
+
 </html>

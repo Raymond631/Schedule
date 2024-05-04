@@ -17,7 +17,7 @@ num_students = config["num_students"]
 num_classes = config["num_classes"]
 
 people = {}
-with open('resource/people.csv', mode='r') as file:
+with open('resource/people.csv', mode='r', encoding="utf-8") as file:
     reader = csv.DictReader(file)
     for row in reader:
         people[row['name']] = row['level']
