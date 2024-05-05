@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh">
+
 <head>
     <meta charset="UTF-8">
     <meta content="IE=edge" http-equiv="X-UA-Compatible">
@@ -63,6 +64,7 @@
         }
     </style>
 </head>
+
 <body>
 
 <div class="container">
@@ -126,16 +128,34 @@
 </div>
 
 
-<script>
-    $(document).ready(function () {
-        $("#submitBtn").click(() => {
-            let timeList = new Array(21);
-            $('#interactive-table td').each((index, cell) => {
-                let id = $(cell).text();
-                timeList[id - 1] = (cell.style.backgroundColor === "red") ? 1 : 0
-            });
-            let name = $("#name").val()
-            let userId = $("#userId").val()
+    <script>
+        $(document).ready(function () {
+            // 页面加载时读取数据并展示
+            const userData = localStorage.getItem('userData');
+            if (userData) {
+                const data = JSON.parse(userData);
+                $("#name").val(data.name);
+                $("#userId").val(data.userId);
+                data.timeList.forEach((isBusy, index) => {
+                    if (isBusy) {
+                        // 填充表格数据
+                        $('#interactive-table td').each((index, cell) => {
+                            const id = parseInt($(cell).text(), 10);
+                            if (data.timeList[id - 1] === 1) {
+                                cell.style.backgroundColor = "red";
+                            }
+                        });
+                    }
+                });
+            }
+            $("#submitBtn").click(() => {
+                let timeList = new Array(21);
+                $('#interactive-table td').each((index, cell) => {
+                    let id = $(cell).text();
+                    timeList[id - 1] = (cell.style.backgroundColor === "red") ? 1 : 0
+                });
+                let name = $("#name").val()
+                let userId = $("#userId").val()
 
             if (name.trim() === '') {
                 window.alert("【错误】姓名不能为空")
@@ -167,21 +187,26 @@
         }
     }
 
-    function sendAjaxRequest(data) {
-        let settings = {
-            "url": "/submit",
-            "method": "POST",
-            "timeout": 0,
-            "headers": {
-                "Content-Type": "application/json"
-            },
-            "data": JSON.stringify(data),
-        };
-        $.ajax(settings).done((response) => {
-            console.log(response);
-            window.alert(response)
-        });
-    }
-</script>
+        function sendAjaxRequest(data) {
+            let settings = {
+                "url": "/submit",
+                "method": "POST",
+                "timeout": 0,
+                "headers": {
+                    "Content-Type": "application/json"
+                },
+                "data": JSON.stringify(data),
+            };
+
+            // 保存数据到 localStorage
+            localStorage.setItem('userData', JSON.stringify(data));
+
+            $.ajax(settings).done((response) => {
+                console.log(response);
+                window.alert(response)
+            });
+        }
+    </script>
 </body>
+
 </html>

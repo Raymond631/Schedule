@@ -3,7 +3,7 @@ import csv
 from utils import to_table, send_email, clear_collected_data
 
 people = {}
-with open('resource/people.csv', mode='r') as file:
+with open('resource/people.csv', mode='r', encoding="utf-8") as file:
     reader = csv.DictReader(file)
     for row in reader:
         people[row['name']] = row['level']

@@ -9,7 +9,7 @@ import utils
 app = Flask(__name__)
 
 people = {}
-with open('resource/people.csv', mode='r') as file:
+with open('resource/people.csv', mode='r', encoding="utf-8") as file:
     reader = csv.DictReader(file)
     for row in reader:
         people[row['name']] = row['level']
