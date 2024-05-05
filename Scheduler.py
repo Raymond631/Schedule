@@ -65,18 +65,3 @@ def start(collected_data, num_students, num_classes):
 
     # 清空缓存，以待下次收集
     clear_collected_data()
-
-# def mock(num_students):
-#     collected_data = []
-#     b = random.randint(0, num_students - 1)  # 偏移量
-#     for i in range(num_students):
-#         collected_data.append({
-#             "name": list(people.keys())[(i + b) % len(people.keys())],
-#             "userId": random.randint(100, 1000),
-#             "timeList": [random.choice([0, 1]) for _ in range(21)]
-#         })
-#     return collected_data
-#
-#
-# if __name__ == '__main__':
-#     start(mock(26), 26, 21)

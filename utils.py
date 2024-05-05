@@ -4,6 +4,7 @@ import smtplib
 from email.mime.application import MIMEApplication
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+from io import StringIO
 
 import pandas as pd
 import redis
@@ -47,13 +48,14 @@ def to_table(data):
 
 
 def collected_to_csv(data):
+    data = sorted(data, key=lambda d: d['timeList'].count(0))
     # 定义星期和时间的列表
     days = ["星期一", "星期二", "星期三", "星期四", "星期五", "星期六", "星期日"]
     times = ["(1)", "(2)", "(3)"]
 
     # 将数据写入CSV文件
     with open('resource/收集结果.csv', 'w', newline='', encoding='utf-8') as csvfile:
-        fieldnames = ['姓名', '工号'] + [f'{day}{time}' for day in days for time in times]
+        fieldnames = ['姓名', '工号'] + [f'{day}{time}' for day in days for time in times] + ['空闲天数']
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
 
         writer.writeheader()
@@ -62,7 +64,8 @@ def collected_to_csv(data):
             new_row = {
                 '姓名': row['name'],
                 '工号': row['userId'],
-                **{f'{days[i]}{times[j]}': timeList[i * 3 + j] for i in range(7) for j in range(3)}
+                **{f'{days[i]}{times[j]}': timeList[i * 3 + j] for i in range(7) for j in range(3)},
+                '空闲天数': row['timeList'].count(0)
             }
             writer.writerow(new_row)
 
@@ -118,6 +121,31 @@ def send_email(msg, collected_data, result=None):
         print("邮件发送成功")
     except smtplib.SMTPException as e:
         print(e)
+
+
+def export_csv():
+    collected_data = get_from_redis()
+    collected_data = sorted(collected_data, key=lambda d: d['timeList'].count(0))
+
+    # 定义星期和时间的列表
+    days = ["星期一", "星期二", "星期三", "星期四", "星期五", "星期六", "星期日"]
+    times = ["(1)", "(2)", "(3)"]
+    fieldnames = ['姓名', '工号'] + [f'{day}{time}' for day in days for time in times] + ['空闲天数']
+    # 写入第一行
+    csv_data = StringIO()  # Convert array to CSV string
+    writer = csv.DictWriter(csv_data, fieldnames=fieldnames)
+    writer.writeheader()
+    # 写入数据
+    for row in collected_data:
+        timeList = ['' if value == 1 else '空闲' if value == 0 else value for value in row.get("timeList")]
+        new_row = {
+            '姓名': row['name'],
+            '工号': row['userId'],
+            **{f'{days[i]}{times[j]}': timeList[i * 3 + j] for i in range(7) for j in range(3)},
+            '空闲天数': row['timeList'].count(0)
+        }
+        writer.writerow(new_row)
+    return csv_data.getvalue()
 
 
 # 存入redis

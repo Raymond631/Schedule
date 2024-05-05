@@ -138,11 +138,13 @@
             let userId = $("#userId").val()
 
             if (name.trim() === '') {
-                window.alert("姓名不能为空")
+                window.alert("【错误】姓名不能为空")
             } else if (userId.trim() === '') {
-                window.alert("工号不能为空")
+                window.alert("【错误】工号不能为空")
             } else if (isNaN(userId)) {
-                window.alert('工号必须为数字!');
+                window.alert('【错误】工号必须为数字!');
+            } else if (timeList.every(element => element === 1)) {
+                window.alert('【错误】不能全选!');
             } else {
                 let data = {
                     name: name,

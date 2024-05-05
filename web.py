@@ -1,26 +1,23 @@
 import csv
-import json
 import threading
 
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template, Response
 
 import Scheduler
 import utils
 
 app = Flask(__name__)
 
-with open("config.json", encoding="utf-8") as f:
-    config = json.load(f)
-# 在校学生数（可调）
-num_students = config["num_students"]
-# 每周班数：7*3
-num_classes = config["num_classes"]
-
 people = {}
 with open('resource/people.csv', mode='r') as file:
     reader = csv.DictReader(file)
     for row in reader:
         people[row['name']] = row['level']
+
+# 在校学生数（可调）
+num_students = len(people)
+# 每周班数：7*3
+num_classes = 21
 
 
 @app.route('/', methods=['get'])
@@ -49,9 +46,20 @@ def submit():
 @app.route('/look', methods=['get'])
 def look():
     collected_data = utils.get_from_redis()
+    collected_data.sort(key=lambda x: x['userId'])
     # 未提交人员名单
     missing_names = [name for name in people.keys() if name not in set(item['name'] for item in collected_data)]
     return render_template("look.html", collected_data=collected_data, missing_names=missing_names)
+
+
+@app.route('/preview', methods=['get'])
+def preview():
+    # 获取参数列表并转换为list
+    name = request.args.get('name')
+    user_id = request.args.get('userId')
+    time_list = eval(request.args.get('data'))
+    data = {"name": name, "userId": user_id, "timeList": time_list}
+    return render_template("preview.html", data=data)
 
 
 # 特殊情况下，可用于删除某个提交（如name输错）
@@ -64,14 +72,15 @@ def delete():
     return s
 
 
-@app.route('/preview', methods=['get'])
-def preview():
-    # 获取参数列表并转换为list
-    name = request.args.get('name')
-    user_id = request.args.get('userId')
-    time_list = eval(request.args.get('data'))
-    data = {"name": name, "userId": user_id, "timeList": time_list}
-    return render_template("preview.html", data=data)
+@app.route('/export', methods=['GET'])
+def download_csv():
+    data = utils.export_csv()
+    # 返回csv文件
+    headers = {
+        'Content-Disposition': 'attachment; filename=collected_data.csv',
+        'Content-Type': 'text/csv'
+    }
+    return Response(data, headers=headers)
 
 
 if __name__ == '__main__':
